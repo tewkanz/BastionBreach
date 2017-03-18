@@ -4,16 +4,21 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.concurrent.*;
 
-import com.jcadungog.bastionbreach.core.BastionBreachCard;
-import com.jcadungog.bastionbreach.core.BastionBreachDataModel;
+import com.jcadungog.bastionbreach.core.*;
 
 public class BastionBreachViewController {
-	public void Run(){
+	public void Run() throws Exception{
 		boolean startNewGame;
 		boolean quit = false;
 		boolean gameOver = false;
-		String cardToPlay;
+		String userInput;
+		PlayingCardNumberEnum cardToPlay;
 		FutureTask<Boolean> waitForOtherPlayer;
+		int player1Score;
+		int player2Score;
+		ArrayList<BastionBreachCard> opponentPlayedCards;
+		ArrayList<BastionBreachCard> centerCards;
+		ArrayList<BastionBreachCard> playersCards;
 		showSplash();
 		while(!quit){
 			startNewGame = promptNewGame();
@@ -21,11 +26,28 @@ public class BastionBreachViewController {
 				_model.initialize();
 				while(!gameOver){
 					// get data, format stuff
-					//cardToPlay = promptForCard(player1Score, player2Score, opponentPlayedCards, centerCards, playersCards);
+					player1Score = _model.GetPlayerScore(PlayerEnum.PLAYER_1);
+					player2Score = _model.GetPlayerScore(PlayerEnum.PLAYER_2);
+					opponentPlayedCards = _model.GetPastPlayerCards(PlayerEnum.OtherPlayer(_player));
+					centerCards = _model.GetCenterCards();
+					playersCards = _model.GetHand(_player);
+					userInput = promptForCard(player1Score, player2Score, opponentPlayedCards, centerCards, playersCards);
 					// try to translate that into a card
+					cardToPlay = PlayingCardNumberEnum.GetCardForSymbol(userInput);
+					if (cardToPlay == PlayingCardNumberEnum.PLAYING_CARD_UNKNOWN){
+						System.out.println("Please enter a valid card.");
+						continue;
+					}
 					// _model Try to play card
+					try{
+						_model.SelectCard(_player, new BastionBreachCard(cardToPlay, _player));
+					}
 					// if failure, communicate that back and try again
-					waitForOtherPlayer = new FutureTask<Boolean>(_waitForOtherPlayerDelegate, true);
+					catch(Exception e){
+						System.out.println(e.getMessage());
+						continue;
+					}
+                    waitForOtherPlayer = new FutureTask<Boolean>(_waitForOtherPlayerDelegate, true);
 					try {
 						waitForOtherPlayer.get(60, TimeUnit.SECONDS);
 					} catch (InterruptedException e) {
@@ -47,12 +69,12 @@ public class BastionBreachViewController {
 		}
 	}
 	private BastionBreachDataModel _model;
+	private PlayerEnum _player;
 	private Runnable _waitForOtherPlayerDelegate;
 	private void showSplash(){
 		System.out.println("Welcome to Bastion Breach, a draconic card game!");
 	}
 	private boolean promptNewGame(){
-		Scanner sc = new Scanner(System.in);
 		Console c = System.console();
 		String response;
 		while(true){

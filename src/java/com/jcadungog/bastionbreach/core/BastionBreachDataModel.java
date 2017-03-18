@@ -1,7 +1,10 @@
 package com.jcadungog.bastionbreach.core;
+
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 /**
+ * SUMMARY: Contains the internal model of the game.
+ *          Eventually we might support multiplayer, so this would be responsible for communicating with the server
  * Created by Joshua Cadungog on 2/17/2017.
  */
 
@@ -39,12 +42,22 @@ public class BastionBreachDataModel {
             _centerCards.add(ThreadLocalRandom.current().nextInt(1,counter+1),new BastionBreachCard(pc, PlayerEnum.PLAYER_CENTER));
         }
 	}
-    public int tryAdvanceRound(int player1Index, int player2Index){
+    private int AdvanceRound() throws Exception{
         int roundResult;
         BastionBreachCard player1Card;
         BastionBreachCard player2Card;
-        player1Card = _player1Hand.get(player1Index);
-        player2Card = _player2Hand.get(player2Index);
+        try {
+            player1Card = _player1Hand.get(_player1selectedCardIndex);
+        }
+        catch(IndexOutOfBoundsException e){
+            throw new Exception("Advance Round: Player 1's card not valid at index "+_player1selectedCardIndex);
+        }
+        try {
+            player2Card = _player2Hand.get(_player2selectedCardIndex);
+        }
+        catch(IndexOutOfBoundsException e){
+            throw new Exception("AdvanceRound: Player 2's card not valid at index "+_player2selectedCardIndex);
+        }
         roundResult = player1Card.cardCompare(player2Card);
         // if the two cards are equal, we don't care what the center card was
         switch(roundResult){
@@ -93,7 +106,24 @@ public class BastionBreachDataModel {
     	}
     	return result;
     }
-    
+    public ArrayList<BastionBreachCard>GetHand(PlayerEnum p) throws Exception{
+        ArrayList<BastionBreachCard> playerHand;
+        switch(p){
+            case PLAYER_1:
+                playerHand = _player1Hand;
+                break;
+            case PLAYER_2:
+                playerHand = _player2Hand;
+                break;
+            default:
+                throw new Exception("GetHand: Player must be 1 or 2");
+        }
+        ArrayList<BastionBreachCard> result = new ArrayList<BastionBreachCard>(playerHand.size());
+        for(BastionBreachCard bbc: playerHand){
+            result.add(bbc);
+        }
+        return result;
+    }
     public ArrayList<BastionBreachCard>GetPastPlayerCards(PlayerEnum p) throws Exception{
     	ArrayList<BastionBreachCard> pastArrayList;
     	switch(p){
@@ -145,6 +175,9 @@ public class BastionBreachDataModel {
     	else if (p == PlayerEnum.PLAYER_2){
     		_player2selectedCardIndex = selectedIndex;
     	}
+    	if ((_player1selectedCardIndex>0)&&(_player2selectedCardIndex > 0)){
+    	    AdvanceRound();
+        }
     }
     public BastionBreachCard GetSelectedCard(PlayerEnum p) throws Exception{
     	switch(p){

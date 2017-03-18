@@ -7,7 +7,7 @@ import java.net.Authenticator;
  */
 
 public class BastionBreachCard implements Comparable<BastionBreachCard> {
-    BastionBreachCard(PlayingCardNumberEnum number, PlayerEnum owner){
+    public BastionBreachCard(PlayingCardNumberEnum number, PlayerEnum owner){
         _cardNumberExt=number;
         _owner=owner;
         _cardNumberInt=number.cardOrdinal();
