@@ -30,6 +30,7 @@ public enum PlayingCardNumberEnum {
     public long cardOrdinal(){
         return this._ordinal;
     }
+    public String symbol(){ return this._symbol; }
     public static PlayingCardNumberEnum GetCardForSymbol(String symbol){
         switch(symbol){
             case "A":

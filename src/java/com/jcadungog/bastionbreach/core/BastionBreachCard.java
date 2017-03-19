@@ -50,8 +50,15 @@ public class BastionBreachCard implements Comparable<BastionBreachCard> {
         return this.compareTo(bbc);
     }
 
-    public boolean equals(BastionBreachCard lhs){
-        if(this._cardNumberInt == lhs.getNumber().cardOrdinal()){
+    public boolean equals(Object lhs){
+        if(lhs == null){
+            return false;
+        }
+        if(!BastionBreachCard.class.isAssignableFrom(lhs.getClass())){
+            return false;
+        }
+        final BastionBreachCard lhsBbc = (BastionBreachCard) lhs;
+        if(this._cardNumberInt == lhsBbc.getNumber().cardOrdinal()){
             return true;
         }
         return false;
@@ -59,5 +66,15 @@ public class BastionBreachCard implements Comparable<BastionBreachCard> {
 
     public int hashCode(){
         return (int) this._cardNumberInt;
+    }
+    public String toString(){
+        return this.toString(false);
+    }
+    public String toString(boolean includePlayer){
+        String result = "";
+        if (includePlayer){
+            result = this._owner.toString() + ": ";
+        }
+        return (result + this._cardNumberExt.symbol());
     }
 }
