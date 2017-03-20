@@ -20,18 +20,25 @@ public class ComPlayerRandom implements IComPlayer{
             playerHand = _model.GetHand(_player);
         }
         catch(Exception e){
-            System.out.printf("ComPlayerRandom.playCard: %s", e.getMessage());
+            System.out.printf("ComPlayerRandom.playCard, GetHand: %s%n", e.getMessage());
             return;
         }
 		// choose one at random
-		index = random.nextInt(playerHand.size());
+		if(playerHand.size() == 1){
+        	// if there's only one card left, pick that card so random doesn't throw an exception
+        	index = 0;
+		}
+		else {
+			index = random.nextInt(playerHand.size());
+		}
 		try{
 		    chosenCard = playerHand.get(index);
             // play it
             _model.SelectCard(_player, chosenCard);
         }
         catch(Exception e){
-		    System.out.printf("ComPlayerRandom.playCard: %s", e.getMessage());
+		    System.out.printf("ComPlayerRandom.playCard, SelectCard: %s %s, Index: %d, chosenCard: %s%n", e.getClass().getName(), e.getMessage(), index, chosenCard == null ? "" : chosenCard.toString(true));
+		    e.printStackTrace();
 		    return;
         }
 	}

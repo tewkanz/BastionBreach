@@ -26,6 +26,7 @@ public class BastionBreachViewController {
 		ArrayList<BastionBreachCard> opponentPlayedCards;
 		ArrayList<BastionBreachCard> centerCards;
 		ArrayList<BastionBreachCard> playersCards;
+		ArrayList<Integer> roundResult;
 		showSplash();
 		while(!quit){
 			startNewGame = promptNewGame();
@@ -39,7 +40,8 @@ public class BastionBreachViewController {
 					playerPlayedCards = _model.GetPastPlayerCards(_player);
 					centerCards = _model.GetCenterCards();
 					playersCards = _model.GetHand(_player);
-					userInput = promptForCard(player1Score, player2Score, opponentPlayedCards, centerCards, playerPlayedCards, playersCards);
+					roundResult = _model.GetRoundResult();
+					userInput = promptForCard(player1Score, player2Score, opponentPlayedCards, centerCards, playerPlayedCards, playersCards,roundResult);
 					// try to translate that into a card
 					cardToPlay = PlayingCardNumberEnum.GetCardForSymbol(userInput);
 					if (cardToPlay == PlayingCardNumberEnum.PLAYING_CARD_UNKNOWN){
@@ -56,8 +58,9 @@ public class BastionBreachViewController {
 						continue;
 					}
                     waitForOtherPlayer = new FutureTask<Boolean>(_waitForOtherPlayerDelegate, true);
+					waitForOtherPlayer.run();
 					try {
-						waitForOtherPlayer.get(60, TimeUnit.SECONDS);
+						waitForOtherPlayer.get(3, TimeUnit.SECONDS);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -102,18 +105,36 @@ public class BastionBreachViewController {
 			}
 		}
 	}
-	private String promptForCard(int player1Score, int player2Score, ArrayList<BastionBreachCard> opponentPlayedCards, ArrayList<BastionBreachCard> centerCards, ArrayList<BastionBreachCard> playersPlayedCards, ArrayList<BastionBreachCard> playersCards){
+	private String promptForCard(int player1Score, int player2Score, ArrayList<BastionBreachCard> opponentPlayedCards, ArrayList<BastionBreachCard> centerCards, ArrayList<BastionBreachCard> playersPlayedCards, ArrayList<BastionBreachCard> playersCards, ArrayList<Integer> roundResult){
 		Scanner s = new Scanner(System.in);
-		System.out.printf("Player 1: %d%nPlayer 2: %d%n", player1Score, player2Score);
+		System.out.printf("Player 1: %d%nPlayer 2: %d", player1Score, player2Score);
 		System.out.printf("%n%n");
 		for(BastionBreachCard bbc: opponentPlayedCards){
 			System.out.printf("%s ", bbc.toString());
 		}
-		System.out.printf("%n%n");
+		System.out.printf("%n");
+		for(Integer i: roundResult){
+			if(i != 1){
+				System.out.printf("O ");
+			}
+			else{
+				System.out.printf("  ");
+			}
+		}
+		System.out.printf("%n");
 		for(BastionBreachCard bbc: centerCards){
 			System.out.printf("%s ", bbc.toString());
 		}
-		System.out.printf("%n%n");
+		System.out.printf("%n");
+		for(Integer i: roundResult){
+			if(i != -1){
+				System.out.printf("O ");
+			}
+			else{
+				System.out.printf("  ");
+			}
+		}
+		System.out.printf("%n");
 		for(BastionBreachCard bbc: playersPlayedCards){
 			System.out.printf("%s ", bbc.toString());
 		}

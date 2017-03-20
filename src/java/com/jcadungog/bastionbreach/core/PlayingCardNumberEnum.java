@@ -63,6 +63,14 @@ public enum PlayingCardNumberEnum {
                 return PLAYING_CARD_UNKNOWN;
         }
     }
+    // copy of values() that doesn't include UNKNOWN
+    public static PlayingCardNumberEnum[] getAllCards(){
+        PlayingCardNumberEnum[] p = { PLAYING_CARD_ACE, PLAYING_CARD_TWO, PLAYING_CARD_THREE, PLAYING_CARD_FOUR,
+                PLAYING_CARD_FIVE, PLAYING_CARD_SIX, PLAYING_CARD_SEVEN, PLAYING_CARD_EIGHT,
+                PLAYING_CARD_NINE, PLAYING_CARD_TEN, PLAYING_CARD_JACK, PLAYING_CARD_QUEEN,
+                PLAYING_CARD_KING };
+        return p;
+    }
 
     public boolean isFaceCard(){
         switch((int) _ordinal){

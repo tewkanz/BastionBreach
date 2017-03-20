@@ -38,14 +38,20 @@ public class BastionBreachCard implements Comparable<BastionBreachCard> {
         if (this._cardNumberExt == PlayingCardNumberEnum.PLAYING_CARD_ACE) {
             if (bbc.getNumber().isFaceCard())
                 return 1;
-            else
+            else if(bbc._cardNumberExt == PlayingCardNumberEnum.PLAYING_CARD_ACE){
+                return 0;
+            }
+            else {
                 return -1;
+            }
         }
         if (bbc._cardNumberExt == PlayingCardNumberEnum.PLAYING_CARD_ACE) {
-            if (this._cardNumberExt.isFaceCard())
-                return 1;
-            else
+            if (this._cardNumberExt.isFaceCard()) {
                 return -1;
+            }
+            else {
+                return 1;
+            }
         }
         return this.compareTo(bbc);
     }

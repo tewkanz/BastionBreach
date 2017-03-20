@@ -37,9 +37,9 @@ public class BastionBreachDataModel {
         _centerCards = new ArrayList<BastionBreachCard>((int) PlayingCardNumberEnum.PLAYING_CARD_KING.cardOrdinal());
         _pastPlayer1Cards = new ArrayList<BastionBreachCard>((int) PlayingCardNumberEnum.PLAYING_CARD_KING.cardOrdinal());
         _pastPlayer2Cards = new ArrayList<BastionBreachCard>((int) PlayingCardNumberEnum.PLAYING_CARD_KING.cardOrdinal());
-
+        _roundResult = new ArrayList<Integer>((int) PlayingCardNumberEnum.PLAYING_CARD_KING.cardOrdinal());
         int counter = 0;
-        for(PlayingCardNumberEnum pc: PlayingCardNumberEnum.values()){
+        for(PlayingCardNumberEnum pc: PlayingCardNumberEnum.getAllCards()){
             _player1Hand.add(new BastionBreachCard(pc, PlayerEnum.PLAYER_1));
             _player2Hand.add(new BastionBreachCard(pc, PlayerEnum.PLAYER_2));
             if(counter++ == 0){
@@ -54,7 +54,7 @@ public class BastionBreachDataModel {
         int roundResult;
         BastionBreachCard player1Card;
         BastionBreachCard player2Card;
-        if(!(_player1selectedCardIndex > 0) || !(_player2selectedCardIndex > 0)){
+        if((_player1selectedCardIndex < 0) || (_player2selectedCardIndex < 0)){
             return -999;
         }
         try {
@@ -76,7 +76,7 @@ public class BastionBreachDataModel {
                 tieResultRound();
                 break;
             case 1:
-                if (player1Card.cardCompare(_centerCards.get(_round)) != 1) {
+                if ((player1Card.cardCompare(_centerCards.get(_round-1)) != 1) || (player1Card.getNumber() == PlayingCardNumberEnum.PLAYING_CARD_ACE)) {
                     tieResultRound();
                     roundResult=0;
                 }
@@ -85,7 +85,7 @@ public class BastionBreachDataModel {
                 }
                 break;
             case -1:
-                if(player2Card.cardCompare(_centerCards.get(_round)) != 1){
+                if((player2Card.cardCompare(_centerCards.get(_round-1)) != 1) || (player2Card.getNumber() == PlayingCardNumberEnum.PLAYING_CARD_ACE)){
                     tieResultRound();
                     roundResult=0;
                 }
@@ -94,6 +94,10 @@ public class BastionBreachDataModel {
                 }
                 break;
         }
+        _player1Hand.remove(_player1selectedCardIndex);
+        _player2Hand.remove(_player2selectedCardIndex);
+        _player1selectedCardIndex = -1;
+        _player2selectedCardIndex = -1;
         _round++;
         _pastPlayer1Cards.add(player1Card);
         _pastPlayer2Cards.add(player2Card);
@@ -154,17 +158,20 @@ public class BastionBreachDataModel {
     	ArrayList<BastionBreachCard> playersHand;
     	int selectedIndex;
     	switch(p){
-    	case PLAYER_1:
-    		playersHand = _player1Hand;
-    		break;
-    	case PLAYER_2:
-    		playersHand = _player2Hand;
-    		break;
-    	default:
-    		throw new Exception("SelectCard: player must be 1 or 2");
+            case PLAYER_1:
+                playersHand = _player1Hand;
+                break;
+            case PLAYER_2:
+                playersHand = _player2Hand;
+                break;
+            default:
+                throw new Exception("SelectCard: player must be 1 or 2");
     	}
+    	if(bbc == null){
+    	    throw new Exception("SelectCard: Card to select is null");
+        }
     	selectedIndex = playersHand.indexOf(bbc);
-    	if (!(selectedIndex > 0)){
+    	if (selectedIndex < 0){
     		throw new Exception("SelectCard: card not found: " + bbc.toString());
     	}
     	if (p == PlayerEnum.PLAYER_1){
@@ -173,7 +180,7 @@ public class BastionBreachDataModel {
     	else if (p == PlayerEnum.PLAYER_2){
     		_player2selectedCardIndex = selectedIndex;
     	}
-    	if ((_player1selectedCardIndex>0)&&(_player2selectedCardIndex > 0)){
+    	if (!(_player1selectedCardIndex < 0) && !(_player2selectedCardIndex < 0)){
     	    AdvanceRound();
         }
     }
